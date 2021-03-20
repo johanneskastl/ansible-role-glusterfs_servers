@@ -1,0 +1,4 @@
+---
+# defaults file for glusterfs_servers
+
+domain_name: "training.b1-systems.de"
