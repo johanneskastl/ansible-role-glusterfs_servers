@@ -6,31 +6,27 @@ You should find two additional blockdevices, `sdb` and `sdc`.
 The directories should have been created already by ansible.
 The packages for the glusterfs server should have been installed by ansible.
 
-The "storage" IPs of each cluster node should have been added to `/etc/hosts` by ansible:
-```
-{{ hostvars[groups[group_name][0]]['ansible_eth1']['ipv4']['address'] }} {{ hostvars[groups[group_name][0]]['inventory_hostname'] }}-storage.training.b1-systems.de {{ hostvars[groups[group_name][0]]['inventory_hostname'] }}-storage
-{{ hostvars[groups[group_name][1]]['ansible_eth1']['ipv4']['address'] }} {{ hostvars[groups[group_name][1]]['inventory_hostname'] }}-storage.training.b1-systems.de {{ hostvars[groups[group_name][1]]['inventory_hostname'] }}-storage
-...
-``` 
+Previously this setup contained usage of a separate network just for the cluster internal traffic. Apparently this is not yet possible with glusterfs.
+
 
 First make sure the nodes can ping each other:
 ```
-root@{{ hostvars[groups[group_name][0]]['inventory_hostname'] }}:~# ping -c 3 {{ hostvars[groups[group_name][1]]['inventory_hostname'] }}-storage
+root@{{ hostvars[groups[group_name][0]]['inventory_hostname'] }}:~# ping -c 3 {{ hostvars[groups[group_name][1]]['inventory_hostname'] }}
 ```
 or
 ```
-root@{{ hostvars[groups[group_name][1]]['inventory_hostname'] }}:~# ping -c 3 {{ hostvars[groups[group_name][0]]['inventory_hostname'] }}-storage
+root@{{ hostvars[groups[group_name][1]]['inventory_hostname'] }}:~# ping -c 3 {{ hostvars[groups[group_name][0]]['inventory_hostname'] }}
 ```
 
 ## Configuration of the nodes
 
 Probe the other node from each node:
 ```
-root@{{ hostvars[groups[group_name][0]]['inventory_hostname'] }}:~# gluster peer probe {{ hostvars[groups[group_name][1]]['inventory_hostname'] }}-storage
+root@{{ hostvars[groups[group_name][0]]['inventory_hostname'] }}:~# gluster peer probe {{ hostvars[groups[group_name][1]]['inventory_hostname'] }}
 ```
 or
 ```
-root@{{ hostvars[groups[group_name][1]]['inventory_hostname'] }}:~# gluster peer probe {{ hostvars[groups[group_name][0]]['inventory_hostname'] }}-storage
+root@{{ hostvars[groups[group_name][1]]['inventory_hostname'] }}:~# gluster peer probe {{ hostvars[groups[group_name][0]]['inventory_hostname'] }}
 ```
 
 Then check the status on each node using the following command:
@@ -103,7 +99,7 @@ mkdir /gluster/brick
 Create a volume called `gv1`:
 
 ```
-gluster volume create gv1 replica 2 {{ hostvars[groups[group_name][0]]['inventory_hostname'] }}-storage:/gluster/brick {{ hostvars[groups[group_name][1]]['inventory_hostname'] }}-storage:/gluster/brick 
+gluster volume create gv1 replica 2 {{ hostvars[groups[group_name][0]]['inventory_hostname'] }}:/gluster/brick {{ hostvars[groups[group_name][1]]['inventory_hostname'] }}:/gluster/brick 
 ```
 
 Check the volume's information:
@@ -118,8 +114,8 @@ Snapshot Count: 0
 Number of Bricks: 1 x 2 = 2
 Transport-type: tcp
 Bricks:
-Brick1: {{ hostvars[groups[group_name][0]]['inventory_hostname'] }}-storage:/gluster/brick
-Brick2: kastl-glusterfs-servers-02-storage:/gluster/brick
+Brick1: {{ hostvars[groups[group_name][0]]['inventory_hostname'] }}:/gluster/brick
+Brick2: kastl-glusterfs-servers-02:/gluster/brick
 Options Reconfigured:
 transport.address-family: inet
 nfs.disable: on
