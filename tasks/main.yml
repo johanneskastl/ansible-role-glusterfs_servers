@@ -10,9 +10,6 @@
 - name: 'Install packages'
   include_tasks: install_packages.yml
 
-- name: 'Add storage network names to /etc/hosts'
-  include_tasks: add_storage_network_names_to_etc_hosts.yml
-
 - name: 'Configure glusterfs'
   include_tasks: configure_glusterfs.yml
 

@@ -1,9 +1,0 @@
----
-# glusterfs_servers/tasks/add_storage_network_names_to_etc_hosts.yml 
-
-- name: "Make sure all hosts are added to each node's /etc/hosts"
-  lineinfile:
-    path: "/etc/hosts"
-    regexp: "{{ hostvars[item]['ansible_eth1']['ipv4']['address'] }}"
-    line: "{{ hostvars[item]['ansible_eth1']['ipv4']['address'] }} {{ item }}-storage.{{ domain_name }} {{ item }}-storage"
-  with_items: "{{ groups[group_name] }}"
