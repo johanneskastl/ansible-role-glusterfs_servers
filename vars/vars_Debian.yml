@@ -1,0 +1,14 @@
+---
+# glusterfs_servers/vars/vars_Debian.yml
+
+# packages to be installed
+glusterfs_packages:
+  - lvm2
+  - xfsprogs
+  - glusterfs-server
+  - thin-provisioning-tools
+  - acl
+  - attr
+
+# name of the glusterfs service
+bind_systemd_unit: ''
