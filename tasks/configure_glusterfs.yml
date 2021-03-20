@@ -11,3 +11,9 @@
   with_items:
     - '/gluster/'
     - '/glusterfs/'
+
+- name: 'Start service'
+  service:
+    name: "{{ glusterfs_server_service }}"
+    state: 'started'
+    enabled: 'true'
