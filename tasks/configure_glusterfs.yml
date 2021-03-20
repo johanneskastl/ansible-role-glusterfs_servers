@@ -12,6 +12,14 @@
     - '/gluster/'
     - '/glusterfs/'
 
+- name: 'Create example systemd mount unit'
+  template:
+    src: 'glusterfs.mount.example.j2'
+    dest: '/root/glusterfs.mount.example'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+
 - name: 'Start service'
   service:
     name: "{{ glusterfs_server_service }}"
