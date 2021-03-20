@@ -1,0 +1,18 @@
+galaxy_info:
+  role_name: 'glusterfs_servers'
+  author: 'Johannes Kastl'
+  description: 'Configure glusterfs servers'
+  company: 'B1 Systems GmbH'
+
+  license: 'BSD-3-Clause'
+
+  min_ansible_version: 2.4
+
+  platforms:
+  - name: Debian
+    versions:
+    - 10
+
+  galaxy_tags: []
+
+dependencies: []
