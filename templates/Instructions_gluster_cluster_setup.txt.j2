@@ -1,0 +1,164 @@
+# Instructions for glusterfs cluster setup:
+
+## Prerequisites
+
+You should find two additional blockdevices, `sdb` and `sdc`.
+The directories should have been created already by ansible.
+The packages for the glusterfs server should have been installed by ansible.
+
+The "storage" IPs of each cluster node should have been added to `/etc/hosts` by ansible:
+```
+{{ hostvars[groups[group_name][0]]['ansible_eth1']['ipv4']['address'] }} {{ hostvars[groups[group_name][0]]['inventory_hostname'] }}-storage.training.b1-systems.de {{ hostvars[groups[group_name][0]]['inventory_hostname'] }}-storage
+{{ hostvars[groups[group_name][1]]['ansible_eth1']['ipv4']['address'] }} {{ hostvars[groups[group_name][1]]['inventory_hostname'] }}-storage.training.b1-systems.de {{ hostvars[groups[group_name][1]]['inventory_hostname'] }}-storage
+...
+``` 
+
+First make sure the nodes can ping each other:
+```
+root@{{ hostvars[groups[group_name][0]]['inventory_hostname'] }}:~# ping -c 3 {{ hostvars[groups[group_name][1]]['inventory_hostname'] }}-storage
+```
+or
+```
+root@{{ hostvars[groups[group_name][1]]['inventory_hostname'] }}:~# ping -c 3 {{ hostvars[groups[group_name][0]]['inventory_hostname'] }}-storage
+```
+
+## Configuration of the nodes
+
+Probe the other node from each node:
+```
+root@{{ hostvars[groups[group_name][0]]['inventory_hostname'] }}:~# gluster peer probe {{ hostvars[groups[group_name][1]]['inventory_hostname'] }}-storage
+```
+or
+```
+root@{{ hostvars[groups[group_name][1]]['inventory_hostname'] }}:~# gluster peer probe {{ hostvars[groups[group_name][0]]['inventory_hostname'] }}-storage
+```
+
+Then check the status on each node using the following command:
+```
+gluster peer status
+```
+
+## Preparation of the disk(s)
+
+You need to prepare the disk(s) on each node using the following commands (example: `sdb`):
+
+```
+root@{{ hostvars[groups[group_name][0]]['inventory_hostname'] }}:~# fdisk /dev/sdb
+
+Welcome to fdisk (util-linux 2.33.1).
+Changes will remain in memory only, until you decide to write them.
+Be careful before using the write command.
+
+Device does not contain a recognized partition table.
+Created a new DOS disklabel with disk identifier 0x85dbdcff.
+
+Command (m for help): n
+Partition type
+   p   primary (0 primary, 0 extended, 4 free)
+   e   extended (container for logical partitions)
+Select (default p): p
+Partition number (1-4, default 1): 1
+First sector (2048-20971519, default 2048):
+Last sector, +/-sectors or +/-size{K,M,G,T,P} (2048-20971519, default 20971519):
+
+Created a new partition 1 of type 'Linux' and of size 10 GiB.
+
+Command (m for help): t
+Selected partition 1
+Hex code (type L to list all codes): 8e
+Changed type of partition 'Linux' to 'Linux LVM'.
+
+Command (m for help): wq
+The partition table has been altered.
+Calling ioctl() to re-read partition table.
+Syncing disks.
+
+root@{{ hostvars[groups[group_name][0]]['inventory_hostname'] }}:~#
+```
+
+Create the LVM volumes:
+```
+pvcreate /dev/sdb1
+vgcreate glustergroup /dev/sdb1
+lvcreate -L 1950M -T glustergroup/clusterpool
+lvcreate -V 1900M -T glustergroup/clusterpool -n glusterv1
+
+```
+
+Format with xfs:
+
+```
+mkfs.xfs /dev/glustergroup/glusterv1
+```
+
+Add it to `/etc/fstab` and mount it:
+```
+echo '/dev/glustergroup/glusterv1 /gluster/ xfs defaults 0 0' >> /etc/fstab
+mount /gluster/
+mkdir /gluster/brick
+```
+
+## Creation of the volume(s)
+
+Create a volume called `gv1`:
+
+```
+gluster volume create gv1 replica 2 {{ hostvars[groups[group_name][0]]['inventory_hostname'] }}-storage:/gluster/brick {{ hostvars[groups[group_name][1]]['inventory_hostname'] }}-storage:/gluster/brick 
+```
+
+Check the volume's information:
+```
+root@{{ hostvars[groups[group_name][0]]['inventory_hostname'] }}:~# gluster volume info
+ 
+Volume Name: gv1
+Type: Replicate
+Volume ID: 20a005a4-ecd1-47aa-b4c8-a51640db4ae4
+Status: Created
+Snapshot Count: 0
+Number of Bricks: 1 x 2 = 2
+Transport-type: tcp
+Bricks:
+Brick1: {{ hostvars[groups[group_name][0]]['inventory_hostname'] }}-storage:/gluster/brick
+Brick2: kastl-glusterfs-servers-02-storage:/gluster/brick
+Options Reconfigured:
+transport.address-family: inet
+nfs.disable: on
+performance.client-io-threads: off
+root@{{ hostvars[groups[group_name][0]]['inventory_hostname'] }}:~#
+```
+
+Check the volume's status:
+```
+root@{{ hostvars[groups[group_name][0]]['inventory_hostname'] }}:~# gluster volume status gv1
+Volume gv1 is not started
+root@{{ hostvars[groups[group_name][0]]['inventory_hostname'] }}:~#
+```
+
+To use the volume, you need to start it:
+```
+gluster volume start gv1
+```
+
+## Mount the gluster volume
+
+To test the volume, you can mount it on the nodes using the systemd mount unit `` prepared by ansible:
+```
+mv /root/glusterfs.mount.example /etc/systemd/system/glusterfs.mount
+systemctl daemon-reload
+systemctl status glusterfs.mount
+```
+
+If there are no errors shown in the output of `systemctl status glusterfs.mount` then you can start the unit aka mount the volume:
+```
+systemctl start glusterfs.mount
+systemctl enable glusterfs.mount
+```
+
+## Final checks:
+
+Make sure the service is enabled on both nodes:
+```
+systemctl is-enabled {{ glusterfs_server_service }}
+```
+
+Normally ansible should start and enable the service, if this is not the case just enable it via `systemctl enable {{ glusterfs_server_service }}`.
