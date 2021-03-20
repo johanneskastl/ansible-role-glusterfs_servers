@@ -1,0 +1,7 @@
+---
+# glusterfs_servers/tasks/install_packages.yml
+
+- name: 'Install glusterfs packages'
+  package:
+    name: "{{ glusterfs_packages }}"
+    state: 'present'
