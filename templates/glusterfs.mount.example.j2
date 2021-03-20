@@ -1,0 +1,13 @@
+[Unit]
+Description = Example Glusterfs volume gv1 
+After=network.target glusterfs-server.service
+Requires=network-online.target
+
+[Mount]
+What={{ hostvars[groups[group_name][0]]['inventory_hostname'] }}:/gv1
+Where=/glusterfs
+Type=glusterfs
+Options=defaults,acl
+
+[Install]
+WantedBy=multi-user.target
