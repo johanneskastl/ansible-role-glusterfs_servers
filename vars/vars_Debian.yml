@@ -11,4 +11,4 @@ glusterfs_packages:
   - attr
 
 # name of the glusterfs service
-bind_systemd_unit: ''
+glusterfs_server_service: 'glusterd'
