@@ -1,5 +1,6 @@
 galaxy_info:
   role_name: 'glusterfs_servers'
+  namespace: 'johanneskastl'
   author: 'Johannes Kastl'
   description: 'Configure glusterfs servers'
   company: 'B1 Systems GmbH'
