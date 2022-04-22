@@ -115,7 +115,7 @@ Number of Bricks: 1 x 2 = 2
 Transport-type: tcp
 Bricks:
 Brick1: {{ hostvars[groups[group_name][0]]['inventory_hostname'] }}:/gluster/brick
-Brick2: kastl-glusterfs-servers-02:/gluster/brick
+Brick2: {{ hostvars[groups[group_name][1]]['inventory_hostname'] }}:/gluster/brick
 Options Reconfigured:
 transport.address-family: inet
 nfs.disable: on
