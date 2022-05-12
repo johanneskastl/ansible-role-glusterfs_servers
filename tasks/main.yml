@@ -2,16 +2,16 @@
 # glusterfs_servers/tasks/main.yml
 
 - name: "Load variables"
-  include_vars: "{{ item }}"
+  ansible.builtin.include_vars: "{{ item }}"
   with_first_found:
     - "vars_{{ ansible_distribution }}.yml"
     - "vars_{{ ansible_os_family }}.yml"
 
 - name: 'Install packages'
-  include_tasks: install_packages.yml
+  ansible.builtin.include_tasks: install_packages.yml
 
 - name: 'Configure glusterfs'
-  include_tasks: configure_glusterfs.yml
+  ansible.builtin.include_tasks: configure_glusterfs.yml
 
 - name: 'Prepare file with instructions on how to setup the cluster'
-  include_tasks: create_file_with_instructions.yml
+  ansible.builtin.include_tasks: create_file_with_instructions.yml
