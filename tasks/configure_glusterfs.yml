@@ -2,7 +2,7 @@
 # glusterfs_servers/tasks/configure_glusterfs.yml
 
 - name: 'Create directories /gluster/ and /glusterfs/'
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: 'directory'
     owner: 'root'
@@ -13,7 +13,7 @@
     - '/glusterfs/'
 
 - name: 'Create example systemd mount unit'
-  template:
+  ansible.builtin.template:
     src: 'glusterfs.mount.example.j2'
     dest: '/root/glusterfs.mount.example'
     owner: 'root'
@@ -21,7 +21,7 @@
     mode: '0644'
 
 - name: 'Start service'
-  service:
+  ansible.builtin.service:
     name: "{{ glusterfs_server_service }}"
     state: 'started'
     enabled: 'true'
