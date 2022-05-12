@@ -1,0 +1,9 @@
+---
+# glusterfs_servers/vars/vars_Suse.yml
+
+# packages to be installed
+glusterfs_packages:
+  - glusterfs
+
+# name of the glusterfs service
+glusterfs_server_service: 'glusterd'
