@@ -2,7 +2,7 @@
 # glusterfs_servers/tasks/main.yml
 
 - name: 'Create Instructions_gluster_cluster_setup.txt from template'
-  template:
+  ansible.builtin.template:
     src: 'Instructions_gluster_cluster_setup.txt.j2'
     dest: '/root/Instructions_gluster_cluster_setup.txt'
     owner: 'root'
