@@ -3,7 +3,10 @@
 
 # packages to be installed
 glusterfs_packages:
-  - glusterfs
+  - 'glusterfs'
+  - 'attr'
+  - 'lvm2'
+  - 'xfsprogs'
 
 # name of the glusterfs service
 glusterfs_server_service: 'glusterd'
