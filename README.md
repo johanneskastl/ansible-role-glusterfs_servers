@@ -25,7 +25,7 @@ Example Playbook
 
     - hosts: servers
       roles:
-         - { role: 'johanneskastl.glusterfs_servers' }
+         - role: 'johanneskastl.glusterfs_servers'
 
 License
 -------
