@@ -1,0 +1,7 @@
+---
+# glusterfs_servers/handlers/main.yml
+
+- name: 'Restart the glusterd service'
+  ansible.builtin.service:
+    name: 'glusterd'
+    state: 'restarted'
