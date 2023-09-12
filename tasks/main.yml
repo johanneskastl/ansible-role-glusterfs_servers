@@ -15,3 +15,17 @@
 
 - name: 'Prepare file with instructions on how to setup the cluster'
   ansible.builtin.include_tasks: create_file_with_instructions.yml
+
+- name: 'Force usage of IPv4, if no IPv6 is present'
+  ansible.builtin.lineinfile:
+    path: '/etc/glusterfs/glusterd.vol'
+    regexp: 'option transport.address-family'
+    line: '    option transport.address-family inet'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify:
+    - 'Restart the glusterd service'
+  when:
+    - 'force_ipv4_as_ipv6_not_available is defined'
+    - 'force_ipv4_as_ipv6_not_available | bool'
