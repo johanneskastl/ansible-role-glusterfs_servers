@@ -3,5 +3,5 @@
 
 - name: 'Restart the glusterd service'
   ansible.builtin.service:
-    name: 'glusterd'
+    name: "{{ glusterfs_server_service }}"
     state: 'restarted'
